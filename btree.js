@@ -21,10 +21,23 @@ function insert(node, key) {
 
 	for (let i = 0; i <= node.keys.length; i++) {
 		if ((i < node.keys.length && key < node.keys[i]) || i == node.keys.length) {
-			insert(node.children[i], key);
-			return splitChild(node);
+			let split = insert(node.children[i], key);
+			// if the insertion at this level required splitting, we need to merge this "subtree" with this node
+			if (split)
+				merge(node, i);
+			if(splitChild(node))
+				return node;
+			else
+				return null;
 		}
 	}
+}
+
+function merge(node, split_posn) {
+	let split_node = node.children[split_posn]; // 7 -> 6, -> 8
+	node.keys[split_posn] = split_node.keys[0];
+	node.children[split_posn] = split_node.children[0];
+	node.children[split_posn+1] = split_node.children[1];
 }
 
 function spliceElement(node, key) {
@@ -54,7 +67,7 @@ function splitChild(node) {
 	// as the recursion comes back up the stack
 
 	// fullness check -- no split needed
-	if (node.children.length <= MAX_DEGREE && node.keys.length <= MAX_DEGREE - 1) return node;
+	if (node.children.length <= MAX_DEGREE && node.keys.length <= MAX_DEGREE - 1) return null;
 
 	// split if needed
 	let midpt_key = Math.floor(MAX_DEGREE/2);
@@ -86,4 +99,7 @@ insert(root, 5);
 insert(root, 8);
 insert(root, 6);
 insert(root, 7);
+insert(root, 8);
+insert(root, 9);
+insert(root, 10);
 console.log(JSON.stringify(root));
