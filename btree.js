@@ -34,7 +34,7 @@ function insert(node, key) {
 }
 
 function merge(node, split_posn) {
-	let split_node = node.children[split_posn]; // 7 -> 6, -> 8
+	let split_node = node.children[split_posn];
 	node.keys[split_posn] = split_node.keys[0];
 	node.children[split_posn] = split_node.children[0];
 	node.children[split_posn+1] = split_node.children[1];
@@ -70,15 +70,14 @@ function splitChild(node) {
 	if (node.children.length <= MAX_DEGREE && node.keys.length <= MAX_DEGREE - 1) return null;
 
 	// split if needed
-	let midpt_key = Math.floor(MAX_DEGREE/2);
-	let midpt_child = Math.floor(MAX_DEGREE/2);
+	let midpt = Math.floor(MAX_DEGREE/2);
 	let left = node_factory();
 	let right = node_factory();
 
 	// construct left and right children properly with splice
-	left.children = node.children.splice(0, midpt_child);
+	left.children = node.children.splice(0, midpt+1);
 	right.children = node.children.splice(0);
-	left.keys = node.keys.splice(0, midpt_key);
+	left.keys = node.keys.splice(0, midpt);
 	right.keys = node.keys.splice(1);
 
 	// construct new parent node and pass it back
@@ -99,7 +98,6 @@ insert(root, 5);
 insert(root, 8);
 insert(root, 6);
 insert(root, 7);
-insert(root, 8);
 insert(root, 9);
 insert(root, 10);
 console.log(JSON.stringify(root));
