@@ -102,9 +102,42 @@ function del(node, key) {
 	}
 }
 
+function find_largest_and_remove(node, parent) {
+	if (!node.children.length) {	// leaf node
+		// find largest
+		return del_helper(node, node.keys[node.keys.length-1], parent, node.keys.length);
+	} else {
+		return find_largest_and_remove(node.children[node.children.length-1], node);
+	}
+}
+
+function find_smallest_and_remove(node, parent) {
+	if (!node.children.length) {
+		return del_helper(node, node.keys[0], parent, 0);
+	} else {
+		return find_smallest_and_remove(node.children[0], node);
+	}
+}
+
 function del_helper(node, key, parent, keyPos) {
 	// Internal Node Cases
-	// TODO
+	if (node.children.length) {
+		// (carry forward) case: check for key at this level -- if not found, recur
+		let keyPos;
+		for (let i = 0; i <= node.keys.length; i++) {
+			if (key < node.keys[i] && key > node.keys[i + 1]) {
+				del_helper(node.children[i], key, node, i);
+				return key;
+			} else if (key == node.keys[i]) {
+				keyPos = i;
+				break;
+			}
+		}
+
+		// (key found) case: find (remove) new value and bring up
+		node.keys[keyPos] = find_smallest_and_remove(node.children[keyPos], node);
+		
+	}
 
 	// Leaf Node Cases
 	if (!node.children.length) {
@@ -120,15 +153,13 @@ function del_helper(node, key, parent, keyPos) {
 			}
 		}
 		if (!removed) {	// (base case of nonexistent delete key)
-			return;
+			return null;
 		}
 
 		// case: no underflow
 		if (node.keys.length >= thresh) {
-			return;
+			return key;
 		}
-
-		console.log("keyPos", keyPos);
 
 		// case: underflow, left sibling exists and borrowable
 		if (keyPos-1 >= 0 && parent.children[keyPos-1].keys.length > thresh) {
@@ -140,7 +171,7 @@ function del_helper(node, key, parent, keyPos) {
 			// insert into this node
 			node.keys.splice(0, 0, ...borrowKey);
 			// done
-			return;
+			return key;
 		}
 
 		// case: underflow, right sibling exists and borrowable
@@ -152,7 +183,7 @@ function del_helper(node, key, parent, keyPos) {
 			// insert into this node
 			node.keys.push(...borrowKey);
 			// done
-			return;
+			return key;
 		}
 
 		// case: underflow, nonexistent / nonborrowable siblings
@@ -169,11 +200,10 @@ function del_helper(node, key, parent, keyPos) {
 		node.children = [];
 
 		// correct parent node
-		console.log(siblingPos < keyPos ? sibling.keys.length : 0);
 		sibling.keys.splice(siblingPos < keyPos ? sibling.keys.length : 0, 0, ...parent.keys.splice(siblingPos < keyPos ? siblingPos : keyPos, 1));
 		parent.children.splice(keyPos, 1);
 
-		return;
+		return key;
 	}
 }
 
