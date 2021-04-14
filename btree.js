@@ -120,19 +120,26 @@ function find_smallest_and_remove(node, parent) {
 }
 
 function del_helper(node, key, parent, keyPos) {
+	console.log("DEL HELPER", JSON.stringify(node));
 	// Internal Node Cases
 	if (node.children.length) {
+		console.log("INTERNAL NODE");
 		// (carry forward) case: check for key at this level -- if not found, recur
 		let keyPos;
-		for (let i = 0; i <= node.keys.length; i++) {
-			if (key < node.keys[i] && key > node.keys[i + 1]) {
-				del_helper(node.children[i], key, node, i);
-				return key;
-			} else if (key == node.keys[i]) {
+		for (let i = 0; i < node.keys.length; i++) {
+			if (key == node.keys[i]) {
 				keyPos = i;
 				break;
+			} else if (i + 1 < node.keys.length && key < node.keys[i] && key > node.keys[i + 1]) {
+				del_helper(node.children[i], key, node, i);
+				return key;
+			} else if (i == node.keys.length-1 && key > node.keys[i]) {
+				del_helper(node.children[i+1], key, node, i+1);
+				return key;
 			}
 		}
+
+		console.log("INTERNAL KEY FOUND", keyPos);
 
 		// (key found) case: find (remove) new value and bring up
 		node.keys[keyPos] = find_smallest_and_remove(node.children[keyPos], node);
@@ -215,12 +222,24 @@ fake_test_node = splitChild(fake_test_node);
 
 console.log(JSON.stringify(fake_test_node));*/
 let root = node_factory();
+// insert(root, 1);
+// insert(root, 2);
+// insert(root, 7);
+// insert(root, 8);
+// insert(root, 9);
+// insert(root, 6);	// test middle cases
+
 insert(root, 1);
 insert(root, 2);
+insert(root, 3);
+insert(root, 4);
+insert(root, 5);
+insert(root, 6);
 insert(root, 7);
 insert(root, 8);
 insert(root, 9);
-insert(root, 6);	// test middle cases
+insert(root, 10);
 console.log(JSON.stringify(root));
 del(root, 9);
+del(root, 10);
 console.log(JSON.stringify(root));
