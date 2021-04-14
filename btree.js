@@ -120,7 +120,7 @@ function find_smallest_and_remove(node, parent) {
 }
 
 function del_helper(node, key, parent, keyPos) {
-	console.log("DEL HELPER", JSON.stringify(node));
+	console.log("DEL HELPER DELETING", key, "in", JSON.stringify(node));
 	// Internal Node Cases
 	if (node.children.length) {
 		console.log("INTERNAL NODE");
@@ -142,7 +142,7 @@ function del_helper(node, key, parent, keyPos) {
 		console.log("INTERNAL KEY FOUND", keyPos);
 
 		// (key found) case: find (remove) new value and bring up
-		node.keys[keyPos] = find_smallest_and_remove(node.children[keyPos], node);
+		node.keys[keyPos] = find_smallest_and_remove(node.children[keyPos+1], node);
 		
 	}
 
@@ -240,6 +240,7 @@ insert(root, 8);
 insert(root, 9);
 insert(root, 10);
 console.log(JSON.stringify(root));
-del(root, 9);
-del(root, 10);
+// del(root, 9);
+// del(root, 10);
+del(root, 8);
 console.log(JSON.stringify(root));
