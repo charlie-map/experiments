@@ -16459,6 +16459,8 @@ function setValueV3f(gl, v) {
 
 	const cache = this.cache;
 
+	console.log(v);
+
 	if (v.x !== undefined) {
 
 		if (cache[0] !== v.x || cache[1] !== v.y || cache[2] !== v.z) {

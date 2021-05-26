@@ -43,6 +43,18 @@
 
 			let controls = new OrbitControls(camera, renderer.domElement);
 
+			// making test cube camera
+			const cubeRenderTarget = new THREE.WebGLCubeRenderTarget( 256, {
+				format: THREE.RGBFormat,
+				generateMipmaps: true,
+				minFilter: THREE.LinearMipmapLinearFilter
+			});
+
+			const cubeCamera = new THREE.CubeCamera( 0.1, 1000, cubeRenderTarget);
+			cubeCamera.updateMatrixWorld();
+
+			scene.add( cubeCamera );
+
 			//scene.background = new THREE.Color('grey');
 
 			const BasicShader = {
@@ -51,6 +63,21 @@
 					cubemap: {
 						type: 't',
 						value: textureCube
+					},
+					cameraPosition: {
+						type: 'v3',
+						value: null
+					}
+				},
+
+				sphere_uniforms: {
+					cubemap: {
+						type: 't',
+						value: textureCube
+					},
+					cameraPosition: {
+						type: 'v3',
+						value: null
 					}
 				},
 
@@ -71,7 +98,9 @@
 			  			vec4 pos = modelViewMatrix * vec4(position, 1.0);
 			  			fPosition = pos.xyz;
 
-			  			vec3 vertexToEye = normalize(projectionMatrix * vec4(0.0, 0.0, 0.0, 1.0) - pos).xyz;
+			  			vec3 worldPosition = ( modelMatrix * vec4( position, 1.0 )).xyz;
+
+			  			vec3 vertexToEye = normalize( worldPosition - cameraPosition );
 			  			vec3 lightDir = normalize(light - pos.xyz);
 			  			float diffuse = dot(lightDir, fNormal);
 			  			intensity = diffuse + dot(diffuse * 2.0 * fNormal - lightDir, vertexToEye);
@@ -82,7 +111,7 @@
 
 			  			square_map = (projectionMatrix * vec4(position, 1.0)).xyz;
 
-			  			envSample = reflect( -vertexToEye, fNormal );
+			  			envSample = reflect( vertexToEye, fNormal );
 			  
 			  			gl_Position = projectionMatrix * pos;		
 			  		}`,
@@ -110,10 +139,8 @@
 					void main() {
 						vec3 outcolor = textureCube(cubemap, envSample).rgb;
 
-						gl_FragColor = vec4(envSample, 1.0);
-					}
-
-				`
+						gl_FragColor = textureCube(cubemap, envSample);
+					}`
 
 			};
 
@@ -167,14 +194,14 @@
 				// });
 
 				// SPHERE MAKING
-				material = new THREE.ShaderMaterial({
-					uniforms: BasicShader.uniforms,
+				let sphere_material = new THREE.ShaderMaterial({
+					uniforms: BasicShader.sphere_uniforms,
 					vertexShader: BasicShader.vertexShader,
 					fragmentShader: BasicShader.sphereFragmentShader
 				});
 
   				const sphere_geometry = new THREE.SphereGeometry( 5, 32, 32 );
-				const sphere = new THREE.Mesh( sphere_geometry, material );
+				const sphere = new THREE.Mesh( sphere_geometry, sphere_material );
 
 				scene.add( sphere );
 
@@ -185,7 +212,15 @@
 			function animate() {
 				requestAnimationFrame(animate);
 
-				material.needsUpdate = true;
+				console.log("pre camera");
+				sphere_material.uniforms.cameraPosition.value = camera.position.clone();
+				console.log("after", sphere_material.uniforms.cameraPosition);
+
+				cubeCamera.updateCubeMap(renderer, scene);
+
+				console.log("pre cubemap");
+				sphere_material.uniforms.cubemap.value = cubeCamera.renderTarget.texture;
+				sphere_material.needsUpdate = true;
 
 				//cube.rotation.x += 0.01;
 				//cube.rotation.y += 0.01;
