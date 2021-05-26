@@ -3,7 +3,7 @@
 <html lang="eng">
 	<head>
 		<title>rollersonly.com</title>
-		<link type="text/css" rel="stylesheet" href="/style.css">
+		<link type="text/css" rel="stylesheet" href="../examples/style.css">
 
 		<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha512-dLxUelApnYxpLt6K2iomGngnHO83iUvZytA3YjDUCjT0HDOHKXnVYdf3hU4JjM8uEhxf9nD1/ey98U3t2vZ0qQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 		<script src="https://cdn.rawgit.com/mrdoob/three.js/master/examples/js/loaders/GLTFLoader.js"></script> -->
@@ -11,15 +11,18 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script> 
 	</head>
 	<body>
+		<!-- <script type="application/javascript" src="../build/three.module.js"></script> -->
 		<!-- <script type="module" src="script.js"></script> -->
 		<script type="module">
 			
 			import * as THREE from '../build/three.module.js';
 
-			import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
+			import { GLTFLoader } from '../examples/jsm/loaders/GLTFLoader.js';
 
 			const scene = new THREE.Scene();
 			const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+			camera.translateZ( 20 );
+			camera.translateY( 10 );
 
 			const renderer = new THREE.WebGLRenderer();
 			renderer.setSize(window.innerWidth, window.innerHeight);
@@ -84,11 +87,12 @@
 
 			const loader = new GLTFLoader();
 			let car;
+			let root;
 
-			loader.load('scene.gltf', function(gltf) {
+			loader.load('../examples/Hydrozoan-jelly.gltf', function(gltf) {
 				console.log("initial worked");
-				const root = gltf.scene;
-				// car = new THREE.Mesh(root, shaderMaterial);
+				root = gltf.scene;
+				//car = new THREE.Mesh(root, shaderMaterial);
 
 				scene.add( root );
 				animate();
@@ -96,15 +100,14 @@
 				console.log(error);
 			});
 
-
 			function animate() {
 				requestAnimationFrame(animate);
 
 				//cube.rotation.x += 0.01;
 				//cube.rotation.y += 0.01;
 
-				car.rotation.x += 0.01;
-				car.rotation.y += 0.01
+				//root.rotation.x += 0.01;
+				root.rotation.y += 0.01
 
 				renderer.render(scene, camera);
 			}

@@ -276,6 +276,7 @@ class GLTFLoader extends Loader {
 
 		}
 
+		console.log(content);
 		const json = JSON.parse( content );
 
 		if ( json.asset === undefined || json.asset.version[ 0 ] < 2 ) {
@@ -2450,7 +2451,6 @@ class GLTFParser {
 				} else {
 
 					array = new TypedArray( bufferView, byteOffset, accessorDef.count * itemSize );
-
 				}
 
 				bufferAttribute = new BufferAttribute( array, itemSize, normalized );
